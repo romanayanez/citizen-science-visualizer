@@ -8,9 +8,9 @@ print(f' Loaded {len(df)} rows and {len(df.columns)} columns')
 # 2. rename group labels for better readability
 print('\nRenaming group labels...')
 group_labels = {
-    'Treatment': 'Citizen Scientists',
-    'Control1': ' Waiting Control',
-    'Control2': ' Panel Control',
+    'Treatment': 'treat',
+    'Control1': 'ctr1',
+    'Control2': 'ctr2',
 }
 df['group'] = df['group'].map(group_labels)
 print(f' Groups now: {df["group"].unique()}')
@@ -51,7 +51,7 @@ for metric in metrics:
     change = f'{metric}_change'  # new change score column
     if pre in df.columns and post in df.columns:
         df[change] = df[post] - df[pre]
-        print(f' ✓ {change} calculated')
+        print(f' ✓ {change}')
 
 # 6. Save cleaned dataset
 print('\nSaving clean dataset...')
