@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head> <!-- information visible only to browsers -->
+        <meta charset="UTF-8"> <!-- for non-english characters to display well-->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- for mobile devices to display well-->
+        <title>Citizen Science Visualizer</title>
+        
+        <!-- Google Fonts -->
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+        
+        <!--My CSS-->
+        <link rel="stylesheet" href="{{ url_for('static', filename='styles.css' )}}"> <!-- loads CSS file  -->
+        
+        <!--Charts.js from CDN-->
+        <script src="https://cdn.jsdelivr.net/nmp/chart.js"></script> <!-- loads Chart.js library from a CDN for charts -->
+    </head>
+    <body> <!-- content visible to users -->
+        
+        <!-- Navigation bar -->
+        <nav>
+            <a href="/">Home</a>
+            <a href="/about">About</a>
+            <a href="/explore">Explore</a>
+        </nav>
+
+        <!-- To be populated in each page -->
+         <main>
+            {% block content %} {% endblock %}
+         </main>
+         <!-- My JavaScript-->
+          <script src="{{ url_for('static', filename='charts.js') }}"></script> <!-- Loads my "charts.js" file -->
+         <!-- Footer -->
+            <footer class = "footer">
+                <p> 
+                    Citizen Science Visualizer |
+                    Submission for the 
+                    <a href="https://www.edx.org/learn/computer-science/harvard-university-cs50-s-introduction-to-computer-science" target="_blank">
+                        CS50
+                    </a>
+                     Final Project | 
+                    &copy; 
+                    <a href="https://romanayanez.github.io/" target="_blank">
+                        By Romana Yáñez
+                    </a>  
+                     2026 | 
+                    <a href="https://romanayanez.github.io/contact" target="_blank"> 
+                        Contact
+                    </a>
+                    me for more information
+                </p>
+            </footer>
+
+    </body>
+
+</html>
