@@ -1,7 +1,98 @@
-{% extends "layout.html" %}
+{% extends 'layout.html' %}
+
 {% block content %}
-    <h1>Visualize Citizen Science Data</h1>
-    <p>
-        **enter charts and how to explore them here**
-    </p>
+
+<h1>Explore the Data</h1>
+<p>What do you want to find out about the FLOW project?
+Select a metric to visualize how the project impacted participants over time.
+</p>
+
+<!-- Metric selector dropdown -->
+<div class="controls">
+    <label for="metricSelect">Metric:</label>
+    <select id="metricSelect">
+        {% for key, label in metrics.items() %}
+            <option value="{{ key }}">{{ label }}</option>
+        {% endfor %}
+    </select>
+</div>
+
+<!-- Drawing my Plotly chart  -->
+<div id="chart"></div>
+
+<script>
+    // Fetch data from my API and draw the chart using Plotly
+    function drawChart(metric) {
+        fetch('/api/data?metric=' + metric)
+            .then(response => response.json())
+            .then(data => {
+
+                const traces = [];
+
+                // Create one trace per timepoint
+                const timepoints = [
+                    { key: 'pre',      label: 'Pretest',       showlegend: true },
+                    { key: 'post',     label: 'Posttest',      showlegend: true },
+                    { key: 'followup', label: 'Follow-up', showlegend: true }
+                ];
+
+                for (const tp of timepoints) {
+                    const xValues = [];
+                    const yValues = [];
+
+                    for (const code in data.groups) {
+                        const group = data.groups[code];
+                        const scores = group[tp.key];
+
+                        if (scores.length > 0) {
+                            xValues.push(...Array(scores.length).fill(group.label));
+                            yValues.push(...scores);
+                        }
+                    }
+
+                    if (yValues.length > 0) {
+                        traces.push({
+                            type: 'box',
+                            name: tp.label,
+                            x: xValues,
+                            y: yValues,
+                            boxpoints: 'all',
+                            jitter: 0.4,
+                            pointpos: 0,
+                            legendgroup: tp.label,
+                            showlegend: tp.showlegend
+                        });
+                    }
+                }
+
+                // Layout
+                const layout = {
+                    title: data.label,
+                    xaxis: {
+                        title: 'Group',
+                        categoryorder: 'array',
+                        categoryarray: ['Citizen Scientists', 'Waiting Control', 'Panel Control'],
+                    },
+                    yaxis: {
+                        title: 'Score',
+                    },
+                    boxmode: 'group',
+                    paper_bgcolor: '#ffffff',
+                    plot_bgcolor: '#ffffff',
+                    font: { family: 'Montserrat, sans-serif' },
+                };
+
+                Plotly.newPlot('chart', traces, layout);
+            });
+    }
+
+    // Draw chart on page load with default metric
+    drawChart(document.getElementById('metricSelect').value);
+
+    // Redraw chart when user changes dropdown selection
+    document.getElementById('metricSelect').addEventListener('change', function() {
+        drawChart(this.value);
+    });
+</script>
+
 {% endblock %}
