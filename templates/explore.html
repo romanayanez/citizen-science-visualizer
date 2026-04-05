@@ -21,7 +21,6 @@ Select a metric to visualize how the project impacted participants over time.
 <div id="chart"></div>
 
 <script>
-    // Fetch data from my API and draw the chart using Plotly
     function drawChart(metric) {
         fetch('/api/data?metric=' + metric)
             .then(response => response.json())
@@ -29,19 +28,19 @@ Select a metric to visualize how the project impacted participants over time.
 
                 const traces = [];
 
-                // Create one trace per timepoint
                 const timepoints = [
-                    { key: 'pre',      label: 'Pretest',       showlegend: true },
-                    { key: 'post',     label: 'Posttest',      showlegend: true },
-                    { key: 'followup', label: 'Follow-up', showlegend: true }
+                    { key: 'pre',      label: 'Pretest'   },
+                    { key: 'post',     label: 'Posttest'  },
+                    { key: 'followup', label: 'Follow-up' }
                 ];
 
                 for (const tp of timepoints) {
                     const xValues = [];
                     const yValues = [];
+                    const color   = data.colors[tp.key];
 
                     for (const code in data.groups) {
-                        const group = data.groups[code];
+                        const group  = data.groups[code];
                         const scores = group[tp.key];
 
                         if (scores.length > 0) {
@@ -56,16 +55,22 @@ Select a metric to visualize how the project impacted participants over time.
                             name: tp.label,
                             x: xValues,
                             y: yValues,
+                            marker: {
+                                color: color,
+                                size: 4,
+                                opacity: 1.0
+                            },
+                            fillcolor: color + '80',
+                            line: { color: color },
                             boxpoints: 'all',
                             jitter: 0.4,
                             pointpos: 0,
                             legendgroup: tp.label,
-                            showlegend: tp.showlegend
+                            showlegend: true
                         });
                     }
                 }
 
-                // Layout
                 const layout = {
                     title: data.label,
                     xaxis: {
@@ -86,10 +91,8 @@ Select a metric to visualize how the project impacted participants over time.
             });
     }
 
-    // Draw chart on page load with default metric
     drawChart(document.getElementById('metricSelect').value);
 
-    // Redraw chart when user changes dropdown selection
     document.getElementById('metricSelect').addEventListener('change', function() {
         drawChart(this.value);
     });

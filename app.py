@@ -14,10 +14,10 @@ GROUP_LABELS = {
     'ctr2': 'Panel Control'
 }
 
-GROUP_COLORS = {
-    'treat': "#0088ff",
-    'ctr1': '#8066ff',
-    'ctr2': "#fba904"
+TIMEPOINT_COLORS = {
+    'pre':      "#f3ba47",   # yellow
+    'post':     "#0088ff",   # blue
+    'followup': "#04c18e"    # dark green
 }
 
 GENDER_LABELS = {
@@ -27,10 +27,10 @@ GENDER_LABELS = {
 
 # Metrics user can choose to visualize
 METRICS = {
-    'knowledge_score': 'Knowledge Score',
-    'attitude':        'Attitude Toward Environment',
-    'awareness':       'Awareness of Threats',
-    'skills':          'Skills',
+    'knowledge_score':     'Knowledge Score',
+    'attitude':            'Attitude Toward Environment',
+    'awareness':           'Awareness of Threats',
+    'skills':              'Skills',
     'personal_efficacy':   'Personal Efficacy',
     'collective_efficacy': 'Collective Efficacy',
     'behavioral_control':  'Behavioral Control',
@@ -76,7 +76,6 @@ def get_data():
 
         groups[code] = {
             'label':    label,
-            'color':    GROUP_COLORS[code],
             'pre':      group_df[col_pre].dropna().tolist(),
             'post':     group_df[col_post].dropna().tolist(),
             'followup': group_df[col_followup].dropna().tolist(),
@@ -87,6 +86,11 @@ def get_data():
         'label':      METRICS.get(metric, metric),
         'timepoints': ['Pre', 'Post', 'Follow-up'],
         'groups':     groups,
+        'colors': {
+            'pre':      TIMEPOINT_COLORS['pre'],
+            'post':     TIMEPOINT_COLORS['post'],
+            'followup': TIMEPOINT_COLORS['followup'],
+        }
     })
 
 # Run the app
