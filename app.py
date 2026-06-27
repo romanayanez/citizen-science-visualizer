@@ -43,6 +43,24 @@ METRICS = {
     'plan_behavior2':      'Planned Collective Behaviour',
 }
 
+# Metric description dictionary, to know where the scores come from
+METRIC_DESCRIPTIONS = {
+    'knowledge_score': 'Participants answered three questions about stream ecology — including criteria for ecological assessment, what bioindicators are, and what proportion of German streams are in good ecological condition.',
+    'attitude':        'Participants rated how useful they personally find various stream protection measures (e.g. buying organic food, participating in group events). Scale: 1 (not useful) to 5 (very useful).',
+    'awareness':       'Participants rated how threatening they consider various factors for river ecosystems (e.g. pesticide inputs, bank stabilisation). Scale: 1 (not threatening) to 5 (very threatening).',
+    'skills':          'Participants self-rated their skills in ecology and stream monitoring, including their ability to collect standardised data and identify macroinvertebrates.',
+    'personal_efficacy':   'Participants rated their agreement with statements about their personal ability to protect rivers and streams. Scale: 1 (strongly disagree) to 5 (strongly agree).',
+    'collective_efficacy': 'Participants rated their belief that together with their community they can improve the ecological status of rivers and streams. Scale: 1 (strongly disagree) to 5 (strongly agree).',
+    'behavioral_control':  'Participants rated how easy it is for them personally to take concrete actions to protect rivers and streams in everyday life. Scale: 1 (very difficult) to 5 (very easy).',
+    'personal_norms':      'Participants rated their sense of personal responsibility and values regarding stream protection. Scale: 1 (strongly disagree) to 5 (strongly agree).',
+    'nature_rel':          'Participants rated their connection to nature using the NR-6 scale (e.g. "My relationship to nature is an important part of who I am"). Scale: 1 (strongly disagree) to 5 (strongly agree).',
+    'interest':            'Participants rated their interest in biology, ecological research, rivers and streams, freshwater protection, and environmental policy. Scale: 1 (not at all) to 5 (very strongly).',
+    'past_behavior1':      'Participants reported how often they personally performed stream-protective behaviours (e.g. buying organic food, respecting protection rules). Scale: 1 (not at all) to 5 (very often).',
+    'past_behavior2':      'Participants reported how often they engaged in collective stream-protective behaviours (e.g. attending events, contacting politicians). Scale: 1 (not at all) to 5 (very often).',
+    'plan_behavior1':      'Participants reported whether they plan to personally protect rivers and streams in the coming weeks. Scale: 1 (does not apply) to 5 (applies completely).',
+    'plan_behavior2':      'Participants reported whether they plan to engage collectively in stream protection in the coming weeks. Scale: 1 (does not apply) to 5 (applies completely).',
+}
+
 # My Routes
 # Home page
 @app.route('/')
@@ -52,7 +70,7 @@ def index():
 # Explore page
 @app.route('/explore')
 def explore():
-    return render_template('explore.html', metrics=METRICS)
+    return render_template('explore.html', metrics=METRICS, descriptions=METRIC_DESCRIPTIONS)
 
 # About page
 @app.route('/about')
@@ -84,6 +102,7 @@ def get_data():
     return jsonify({
         'metric':     metric,
         'label':      METRICS.get(metric, metric),
+        'description': METRIC_DESCRIPTIONS.get(metric, ''),
         'timepoints': ['Pre', 'Post', 'Follow-up'],
         'groups':     groups,
         'colors': {

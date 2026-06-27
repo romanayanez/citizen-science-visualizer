@@ -17,6 +17,9 @@ Select a metric to visualize how the project impacted participants over time.
     </select>
 </div>
 
+<!-- Metric description to know where the socres come from-->
+<div id="metricDescription" class="description-box"></div>
+
 <!-- Drawing my Plotly chart  -->
 <div id="chart"></div>
 
@@ -88,6 +91,8 @@ Select a metric to visualize how the project impacted participants over time.
                 };
 
                 Plotly.newPlot('chart', traces, layout);
+                // Show metric description
+                document.getElementById('metricDescription').innerHTML = data.description;
             });
     }
 

@@ -61,3 +61,13 @@ h1, h2, h3 {
 .footer a:hover{
     text-decoration: underline;
 }
+
+.description-box {
+    background-color: #f0f6ff;
+    border-left: 4px solid #0088ff;
+    padding: 0.8rem 1rem;
+    margin: 1rem 0;
+    font-size: 0.9rem;
+    color: #444;
+    border-radius: 0 5px 5px 0;
+}
