@@ -1,4 +1,5 @@
 from flask import Flask, render_template, jsonify, request
+from scipy import stats
 import pandas as pd
 
 # my Flask app
@@ -61,6 +62,34 @@ METRIC_DESCRIPTIONS = {
     'plan_behavior2':      'Participants reported whether they plan to engage collectively in stream protection in the coming weeks. Scale: 1 (does not apply) to 5 (applies completely).',
 }
 
+def get_significance(scores_a, scores_b):
+    '''Compare two paired score lists using Wilcoxon signed-rank test.
+    Returns a dict with the star symbol and p-value.'''
+    # Need at least 10 pairs to run the test
+    pairs_a = []
+    pairs_b = []
+    for a, b in zip(scores_a, scores_b):
+        if a is not None and b is not None:
+            pairs_a.append(a)
+            pairs_b.append(b)
+
+    if len(pairs_a) < 10:
+        return {'star': 'ns', 'p': None}
+
+    try:
+        stat, p = stats.wilcoxon(pairs_a, pairs_b)
+        if p <= 0.001:
+            star = '***'
+        elif p <= 0.01:
+            star = '**'
+        elif p <= 0.05:
+            star = '*'
+        else:
+            star = 'ns'
+        return {'star': star, 'p': round(float(p), 4)}
+    except Exception:
+        return {'star': 'ns', 'p': None}
+
 # My Routes
 # Home page
 @app.route('/')
@@ -92,11 +121,34 @@ def get_data():
     for code, label in GROUP_LABELS.items():
         group_df = df[df['group'] == code]
 
+        pre      = group_df[col_pre].dropna().tolist()
+        post     = group_df[col_post].dropna().tolist()
+        followup = group_df[col_followup].dropna().tolist()
+
+        # Match paired scores for statistical tests
+        paired_pre_post = group_df[[col_pre, col_post]].dropna()
+        paired_pre_fu   = group_df[[col_pre, col_followup]].dropna()
+        paired_post_fu  = group_df[[col_post, col_followup]].dropna()
+
         groups[code] = {
             'label':    label,
-            'pre':      group_df[col_pre].dropna().tolist(),
-            'post':     group_df[col_post].dropna().tolist(),
-            'followup': group_df[col_followup].dropna().tolist(),
+            'pre':      pre,
+            'post':     post,
+            'followup': followup,
+            'stats': {
+                'pre_vs_post':     get_significance(
+                    paired_pre_post[col_pre].tolist(),
+                    paired_pre_post[col_post].tolist()
+                ),
+                'pre_vs_followup': get_significance(
+                    paired_pre_fu[col_pre].tolist(),
+                    paired_pre_fu[col_followup].tolist()
+                ),
+                'post_vs_followup': get_significance(
+                    paired_post_fu[col_post].tolist(),
+                    paired_post_fu[col_followup].tolist()
+                ),
+            }
         }
 
     return jsonify({

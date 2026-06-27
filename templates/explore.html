@@ -7,7 +7,6 @@
 Select a metric to visualize how the project impacted participants over time.
 </p>
 
-<!-- Metric selector dropdown -->
 <div class="controls">
     <label for="metricSelect">Metric:</label>
     <select id="metricSelect">
@@ -17,10 +16,8 @@ Select a metric to visualize how the project impacted participants over time.
     </select>
 </div>
 
-<!-- Metric description to know where the socres come from-->
 <div id="metricDescription" class="description-box"></div>
 
-<!-- Drawing my Plotly chart  -->
 <div id="chart"></div>
 
 <script>
@@ -77,7 +74,7 @@ Select a metric to visualize how the project impacted participants over time.
                 const layout = {
                     title: data.label,
                     xaxis: {
-                        title: 'Group',
+                        //title: 'Group',
                         categoryorder: 'array',
                         categoryarray: ['Citizen Scientists', 'Waiting Control', 'Panel Control'],
                     },
@@ -91,7 +88,101 @@ Select a metric to visualize how the project impacted participants over time.
                 };
 
                 Plotly.newPlot('chart', traces, layout);
-                // Show metric description
+
+                // Add significance annotations and lines
+                const annotations = [];
+                const shapes = [];
+                const groupOrder = ['Citizen Scientists', 'Waiting Control', 'Panel Control'];
+
+                // 1. Calculate max Y across all data groups to position brackets perfectly above everything
+                let maxY = 0;
+                for (const code in data.groups) {
+                    const group = data.groups[code];
+                    const allScores = [...group.pre, ...group.post, ...group.followup];
+                    if (allScores.length > 0) {
+                        const groupMax = Math.max(...allScores);
+                        if (groupMax > maxY) maxY = groupMax;
+                    }
+                }
+
+                // Base height slightly above the highest point found in the dataset
+                const bracketBase = maxY + (maxY * 0.05); 
+                const bracketStep = maxY * 0.08; // Vertical spacing buffer between comparisons
+
+                for (const code in data.groups) {
+                    const group = data.groups[code];
+                    const gIdx  = groupOrder.indexOf(group.label);
+                    
+                    if (gIdx === -1) continue; // Skip if group isn't tracked in groupOrder
+
+                    // Define the specific sub-box X-offsets for this group cluster
+                    const xPre  = gIdx - 0.2;
+                    const xPost = gIdx;
+                    const xFu   = gIdx + 0.2;
+
+                    // --- Pre vs Post ---
+                    const prePost = group.stats.pre_vs_post;
+                    if (prePost && prePost.star !== 'ns') {
+                        const yLevel = bracketBase;
+
+                        // Draw horizontal line between Pre and Post boxes
+                        shapes.push({
+                            type: 'line',
+                            xref: 'x', yref: 'y',
+                            x0: xPre, y0: yLevel,
+                            x1: xPost, y1: yLevel,
+                            line: { color: '#555', width: 1.5 }
+                        });
+
+                        // Anchor star right over the center of the line segment
+                        annotations.push({
+                            x: (xPre + xPost) / 2,
+                            y: yLevel,
+                            text: prePost.star,
+                            showarrow: false,
+                            font: { size: 14, color: '#333', family: 'Montserrat, sans-serif' },
+                            yshift: 6, // Pushes text slightly above the physical line
+                            hovertext: `Pre vs Post: p = ${prePost.p}`,
+                        });
+                    }
+
+                    // --- Pre vs Follow-up ---
+                    const preFu = group.stats.pre_vs_followup;
+                    if (preFu && preFu.star !== 'ns' && group.followup.length > 0) {
+                        // Stack this comparison cleanly above the Pre vs Post line
+                        const yLevel = bracketBase + bracketStep;
+
+                        // Draw horizontal line between Pre and Follow-up boxes
+                        shapes.push({
+                            type: 'line',
+                            xref: 'x', yref: 'y',
+                            x0: xPre, y0: yLevel,
+                            x1: xFu, y1: yLevel,
+                            line: { color: '#555', width: 1.5 }
+                        });
+
+                        // Anchor star over the center of the span
+                        annotations.push({
+                            x: (xPre + xFu) / 2,
+                            y: yLevel,
+                            text: preFu.star,
+                            showarrow: false,
+                            font: { size: 14, color: '#333', family: 'Montserrat, sans-serif' },
+                            yshift: 6,
+                            hovertext: `Pre vs Follow-up: p = ${preFu.p}`,
+                        });
+                    }
+                }
+
+                // Update layout with both our shapes (lines) and annotations (stars + tooltips)
+                Plotly.relayout('chart', { 
+                    annotations: annotations,
+                    shapes: shapes,
+                    // Give the Y-axis headroom so your highest bracket doesn't slice off the chart
+                    'yaxis.range': [0, bracketBase + (bracketStep * 2)]
+                });
+
+                // --- RESTORED LINE HERE ---
                 document.getElementById('metricDescription').innerHTML = data.description;
             });
     }
