@@ -1,6 +1,6 @@
 # Citizen Science Visualizer
 
-#### Video Demo: [paste YouTube URL here after recording]
+#### Video Demo: https://youtu.be/xd2G0win2rc
 
 ## Description
 
