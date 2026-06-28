@@ -1,7 +1,68 @@
-{% extends "layout.html" %}
+{% extends 'layout.html' %}
+
 {% block content %}
-    <h1>About The Citizen Science Visualizer</h1>
-    <p>
-        **enter description here**
-    </p>
+
+<h1>About the FLOW Dataset</h1>
+
+<p>
+    This app is currently built around the 
+    <a href="https://zenodo.org/records/13268341" target="_blank">FLOW project dataset</a> 
+    , a citizen science study on freshwater stream monitoring in Germany. 
+    The FLOW project engaged community members in monitoring local streams, 
+    collecting ecological data alongside professional researchers. Participants 
+    completed surveys before joining the project, immediately after, and at 
+    a follow-up several months later. This pre/post/follow-up design allows 
+    us to measure whether and how participation changed people's knowledge, 
+    attitudes, and behaviour.
+</p>
+
+<p>
+    The dataset includes responses from three groups: <strong>Citizen Scientists</strong> 
+    who actively participated in stream monitoring, a <strong>Waiting Control</strong> 
+    group who were registered but had not yet participated, and a 
+    <strong>Panel Control</strong> group with no involvement in the project. 
+    Comparing these groups allows us to assess whether changes are genuinely 
+    due to citizen science participation or simply reflect broader trends over time.
+</p>
+
+<h2>What you can explore</h2>
+<p>
+    Choose from 14 psychological and behavioural metrics, including 
+    knowledge scores, environmental attitudes and planned behaviour. 
+    For each metric, you will see:
+</p>
+
+<ul>
+    <li>All individual data points across timepoints</li>
+    <li>A comparison between Citizen Scientists, Waiting Control, and Panel Control groups</li>
+    <li>Statistical significance markers showing where real change occurred</li>
+    <li>A description of what each metric measures</li>
+</ul>
+
+<h2>Statistical approach</h2>
+<p>
+    Significance testing is performed using the Wilcoxon signed-rank test, 
+    a non-parametric test chosen because the score distributions are not 
+    guaranteed to be normally distributed, and because the data is paired 
+    (the same participants responded at each timepoint). Significance markers 
+    follow standard conventions: * p ≤ 0.05, ** p ≤ 0.01, *** p ≤ 0.001, 
+    no marker = not significant.
+</p>
+
+<h2>Data source and attribution</h2>
+<p>
+    Participant survey data from the open access citizen science project FLOW, 2021.<br>
+    Dataset DOI: <a href="https://doi.org/10.5281/zenodo.13268341" target="_blank">
+    https://doi.org/10.5281/zenodo.13268341</a><br>
+    Licence: CC-BY
+</p>
+<p>
+    von Gönner, J., Masson, T., Köhler, S., Fritsche, I., Bonn, A. (2024). 
+    Citizen science promotes knowledge, skills and collective action to monitor 
+    and protect freshwater streams. <em>People and Nature.</em>
+</p>
+
+
+<a href="/explore" class="cta-button">Explore the Data →</a>
+
 {% endblock %}

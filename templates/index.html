@@ -1,9 +1,49 @@
-{% extends "layout.html" %}
+{% extends 'layout.html' %}
+
 {% block content %}
-    <h1>Citizen Science Visualizer</h1>
-    <p>Welcome to the Citizen Science Visualizer! 
-        This tool allows you to explore and visualize data from  
-        citizen science projects. Use the navigation menu to access different 
-        datasets and create visualizations.
-    </p>
+
+<h1>Citizen Science Visualizer</h1>
+
+<p>
+    Citizen science brings together researchers and communities to tackle 
+    real scientific questions. But what does participation actually do to 
+    the people involved? Does joining a citizen science project change how 
+    much someone knows about a topic? Does it shift attitudes, behaviour, or sense of 
+    personal responsibility?
+</p>
+
+<p>
+    The Citizen Science Visualizer is an open, interactive 
+    tool that makes these questions visible. It lets you explore survey data 
+    collected from participants before, after, and at follow-up, comparing 
+    how different groups changed over time across a range of psychological 
+    and behavioural metrics.
+</p>
+
+<h2>Who is the this for?</h2>
+<p>
+    Whether you are a researcher evaluating the impact of a citizen science 
+    programme, a science communicator looking for clear ways to present 
+    results, or a citizen scientist curious about the broader effects of 
+    your own participation, this tool is for you.
+</p>
+
+<h2>Why does it matter?</h2>
+<p>
+    There are very few accessible tools for visualizing the human impact 
+    of citizen science. Most results stay locked in academic papers. This 
+    visualizer is a step toward changing that, making evidence for 
+    citizen science impact open, visual, and understandable to everyone.
+</p>
+
+<h2>Who built it?</h2>
+<p>
+    This tool was built by Romana Yáñez as the final project for 
+    <a href="https://www.edx.org/learn/computer-science/harvard-university-cs50-s-introduction-to-computer-science" target="_blank">CS50x</a> 
+    , Harvard University's Introduction to Computer Science. It was built 
+    using Python, Flask, pandas, scipy, and Plotly.js.
+</p>
+
+<a href="/explore" class="cta-button">Explore the Data →</a>
+
 {% endblock %}
