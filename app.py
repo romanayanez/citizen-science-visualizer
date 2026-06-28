@@ -117,18 +117,23 @@ def get_data():
     col_post     = f'{metric}.2'
     col_followup = f'{metric}.3'
 
+    # Check which columns actually exist in the dataset
+    has_pre      = col_pre      in df.columns
+    has_post     = col_post     in df.columns
+    has_followup = col_followup in df.columns
+
     groups = {}
     for code, label in GROUP_LABELS.items():
         group_df = df[df['group'] == code]
 
-        pre      = group_df[col_pre].dropna().tolist()
-        post     = group_df[col_post].dropna().tolist()
-        followup = group_df[col_followup].dropna().tolist()
+        pre      = group_df[col_pre].dropna().tolist()      if has_pre      else []
+        post     = group_df[col_post].dropna().tolist()     if has_post     else []
+        followup = group_df[col_followup].dropna().tolist() if has_followup else []
 
-        # Match paired scores for statistical tests
-        paired_pre_post = group_df[[col_pre, col_post]].dropna()
-        paired_pre_fu   = group_df[[col_pre, col_followup]].dropna()
-        paired_post_fu  = group_df[[col_post, col_followup]].dropna()
+        # Paired scores for statistical tests — only if both columns exist
+        paired_pre_post = group_df[[col_pre, col_post]].dropna()         if has_pre and has_post     else pd.DataFrame()
+        paired_pre_fu   = group_df[[col_pre, col_followup]].dropna()     if has_pre and has_followup else pd.DataFrame()
+        paired_post_fu  = group_df[[col_post, col_followup]].dropna()    if has_post and has_followup else pd.DataFrame()
 
         groups[code] = {
             'label':    label,
@@ -136,27 +141,29 @@ def get_data():
             'post':     post,
             'followup': followup,
             'stats': {
-                'pre_vs_post':     get_significance(
+                'pre_vs_post': get_significance(
                     paired_pre_post[col_pre].tolist(),
                     paired_pre_post[col_post].tolist()
-                ),
+                ) if not paired_pre_post.empty else {'star': 'ns', 'p': None},
+
                 'pre_vs_followup': get_significance(
                     paired_pre_fu[col_pre].tolist(),
                     paired_pre_fu[col_followup].tolist()
-                ),
+                ) if not paired_pre_fu.empty else {'star': 'ns', 'p': None},
+
                 'post_vs_followup': get_significance(
                     paired_post_fu[col_post].tolist(),
                     paired_post_fu[col_followup].tolist()
-                ),
+                ) if not paired_post_fu.empty else {'star': 'ns', 'p': None},
             }
         }
 
     return jsonify({
-        'metric':     metric,
-        'label':      METRICS.get(metric, metric),
+        'metric':      metric,
+        'label':       METRICS.get(metric, metric),
         'description': METRIC_DESCRIPTIONS.get(metric, ''),
-        'timepoints': ['Pre', 'Post', 'Follow-up'],
-        'groups':     groups,
+        'timepoints':  ['Pre', 'Post', 'Follow-up'],
+        'groups':      groups,
         'colors': {
             'pre':      TIMEPOINT_COLORS['pre'],
             'post':     TIMEPOINT_COLORS['post'],
