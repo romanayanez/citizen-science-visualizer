@@ -1,0 +1,8 @@
+Dataset: Participant survey data from the citizen science project FLOW, 2021
+DOI: https://doi.org/10.5281/zenodo.13268341
+Licence: CC-BY 4.0
+
+Citation:
+von Gönner, J., Masson, T., Köhler, S., Fritsche, I., Bonn, A. (2024).
+Citizen science promotes knowledge, skills and collective action
+to monitor and protect freshwater streams. People and Nature.
