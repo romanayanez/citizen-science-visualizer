@@ -1,87 +1,165 @@
 # Citizen Science Visualizer
 
-A Flask web app that visualizes how citizen science participation 
-affects participants' knowledge, attitudes, and behaviour. Built around publicly available survey data from the **FLOW Citizen Science Project Survey (Zenodo, 2024)** https://zenodo.org/records/13268341
+#### Video Demo: [paste YouTube URL here after recording]
+
+## Description
+
+The **Citizen Science Visualizer** is an interactive web application 
+built with Python and Flask that allows users to visualize 
+citizen science data. It uses publicly available 
+survey data from the FLOW citizen science project (von Gönner et al., 2024; Zenodo, CC-BY), 
+which studied the effects of community participation in freshwater 
+stream monitoring in Germany, as a pilot case study. 
+This app can later be expanded for the visualization of different datasets.
+
+Users can explore the results for 14 psychological and behavioural metrics.
+For each metric, the app displays an interactive box plot showing individual data points across three timepoints: pretest, posttest, and follow-up, for 
+three participant groups: Citizen Scientists, Waiting Control, and 
+Panel Control. Hovering over the chart components reveals the datapoint attributes (group, timepoint, value). Statistical significance markers are shown directly on the chart. Hovering over the statistical markers reveals the exact p-value.
+
+## Files
+
+### `app.py`
+The core Flask application. It loads the cleaned dataset once at 
+startup using pandas, and defines four routes: `/` (home page), 
+`/explore` (main visualizer), `/about` (dataset information), and 
+`/api/data` (JSON data endpoint). 
+
+The `/api/data` route accepts a `metric` parameter via URL query 
+string (e.g. `/api/data?metric=knowledge_score`) and returns a JSON 
+object containing individual scores for all three groups and 
+timepoints, pre-calculated statistical test results, metric 
+descriptions, colour definitions, and axis labels. 
+
+Statistical significance is calculated using the Wilcoxon signed-rank 
+test from scipy, implemented in the helper function `get_significance()`. 
+The function handles edge cases including missing columns (some metrics 
+were not measured at follow-up), insufficient data for testing, and 
+identical distributions where the Wilcoxon test cannot be applied.
+
+`app.py` also contains all translation dictionaries that separate the 
+data layer from the presentation layer: `GROUP_LABELS`, `TIMEPOINT_COLORS`, 
+`GENDER_LABELS`, `METRICS`, and `METRIC_DESCRIPTIONS`.
+
+### `fetch_data.py`
+A one-time data preparation script that must be run before starting 
+the app. It reads the raw Excel file from `data/raw/`, cleans and 
+standardises the data, calculates change scores for all 14 metrics 
+(posttest minus pretest), adds a follow-up completion flag, and saves 
+the result as `data/flow_clean.csv`. This script is not part of the 
+web app, it is a developer tool run once to prepare the dataset.
+
+### `templates/layout.html`
+The shared parent template inherited by all pages. It defines the 
+page structure including the `<head>` section with metadata, Google 
+Fonts, my CSS, and the Plotly.js CDN link. It also contains the 
+navigation bar and footer, which appear on every page. Child templates 
+fill in the `{% block content %}` placeholder with their own content.
+
+### `templates/index.html`
+The home page. It introduces the purpose of the app, explains who 
+it is for, and invites users to explore the data with a call-to-action 
+button. The page is intentionally kept general so that future datasets 
+can be added without changing the home page.
+
+### `templates/about.html`
+Describes the FLOW project, the dataset structure, the three 
+participant groups, the statistical methodology, and full attribution 
+for the data source. Also includes a call-to-action button linking 
+to the explore page.
+
+### `templates/explore.html`
+The main visualizer page and the most complex file in the project. 
+It contains a dropdown menu populated dynamically from the `METRICS` 
+dictionary in `app.py`, a description box that updates when the metric 
+changes, and a Plotly.js chart that redraws interactively on every 
+selection change.
+
+The JavaScript `drawChart()` function fetches data from `/api/data`, 
+builds one box plot trace per timepoint, and uses Plotly's `relayout` 
+function to add significance brackets and annotations above the chart. 
+Bracket positions are calculated dynamically from the actual maximum 
+y-value in the data, so the chart scales correctly for any dataset.
 
 
-## Video Demo
-[paste your YouTube URL here after recording]
+### `static/styles.css`
+Custom CSS styling for the entire app. Defines the navigation bar 
+layout and hover states, typography using Montserrat from Google Fonts, 
+heading colours, the metric description box styling, the footer, and 
+the call-to-action button.
 
-## What it does
+### `static/charts.js`
+Reserved for future JavaScript modules. Currently empty but referenced 
+in `layout.html` — kept in the project to avoid 404 errors and for 
+future use when chart logic is moved out of `explore.html`.
 
-Citizen Science Visualizer lets users interactively explore 
-survey data collected before, during and after participation 
-in a citizen science project. 
+### `data/flow_clean.csv`
+The cleaned dataset generated by `fetch_data.py`. Contains 555 rows 
+and 68 columns — the original 53 survey columns plus 14 change score 
+columns and a follow-up completion flag.
 
-Users can select from 14 metrics, including knowledge scores, environmental attitudes, and planned behaviour to see how scores changed across three timepoints (pretest, posttest and follow-up) for three participant groups: Citizen Scientists, Waiting Control, and Panel Control.
+### `data/attribution.txt`
+Plain text file crediting the FLOW dataset authors, as required by 
+the CC-BY licence.
 
-Each chart shows:
-- Individual data points (box plots with all points visible)
-- Statistical significance markers (* p≤0.05, ** p≤0.01, *** p≤0.001)
-- Metric descriptions explaining what each score measures
-- Interactive hover tooltips showing exact values and p-values
-- Option to download as PNG
+### `requirements.txt`
+Lists all Python packages required to run the app, generated with 
+`pip freeze`. Key dependencies are Flask, pandas, scipy, and openpyxl.
 
-## How to run it
-
-```bash
-git clone https://github.com/YOUR-USERNAME/citizen-science-visualizer.git
-cd citizen-science-visualizer
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-python3 fetch_data.py
-python3 app.py
-```
-Then open http://127.0.0.1:5000 in Safari or Firefox.
-Note: fetch_data.py must be run once before app.py. It downloads and cleans the raw dataset from data/raw/ and saves it as data/flow_clean.csv, which the app reads at startup.
-Note: This app was developed and tested on Mac. Windows users may need to use python instead of python3 and venv\Scripts\activate instead of source venv/bin/activate.
 
 ## Data source
 
-Participant survey data from the citizen science project FLOW, 2021
-Dataset DOI: https://doi.org/10.5281/zenodo.13268341
-Licence: CC-BY
+Participant survey data from the citizen science project FLOW, 2021.
+Dataset DOI: https://doi.org/10.5281/zenodo.13268341. Licence: CC-BY
 
 von Gönner, J., Masson, T., Köhler, S., Fritsche, I., Bonn, A. (2024).
-Citizen science promotes knowledge, skills and collective action 
+Citizen science promotes knowledge, skills and collective action
 to monitor and protect freshwater streams. People and Nature.
-
-
 
 ## Design decisions
 
-**Flask over Django** — Flask is lightweight and sufficient for 
-a single-dataset read-only app. No database needed since data 
-is served from a pre-cleaned CSV loaded at startup.
+**Flask over Django** — Flask is lightweight and sufficient for a 
+single-dataset read-only app. No database is needed because data is 
+served from a pre-cleaned CSV loaded once at startup, making the app 
+fast and simple to deploy.
 
-**Plotly.js over Chart.js** — Plotly natively supports box plots 
-with individual points (beeswarm-style), which is scientifically 
-more honest than bar charts showing only means.
+**Plotly.js over Chart.js** — Plotly natively supports box plots with 
+all individual data points visible, which is scientifically more honest 
+than bar charts showing only means. It also provides built-in hover 
+tooltips, zoom, and PNG download without additional code.
 
-**API-first data layer** — chart data is served via a /api/data 
-endpoint rather than embedded in the HTML. This separates data 
-logic from presentation and makes the app extensible.
+**API-first data layer** — chart data is served via a `/api/data` 
+endpoint rather than embedded directly in the HTML. This cleanly 
+separates data logic from presentation, makes the app testable in 
+the browser, and makes it straightforward to add new datasets or 
+chart types in the future.
 
-**Short codes in data, readable labels in presentation** — 
-group codes (treat, ctr1, ctr2) are used in the CSV while 
-human-readable labels are defined once in app.py and passed 
-to all templates. This follows separation of concerns.
+**Short codes in data, readable labels in presentation** — group 
+codes (`treat`, `ctr1`, `ctr2`) are used in the CSV while 
+human-readable labels are defined once in `app.py` and passed to 
+all templates. This follows the principle of separation of concerns 
+and makes the app easier to maintain and extend.
 
-**Wilcoxon signed-rank test** — chosen over t-test because 
-the score distributions are not guaranteed to be normal, 
-and the data is paired (same participants at each timepoint).
+**Wilcoxon signed-rank test** — chosen over a paired t-test because 
+the score distributions are not guaranteed to be normally distributed, 
+and the Wilcoxon test is more appropriate for ordinal Likert-scale 
+data. The test is applied to paired observations only, using matched 
+pre/post rows after dropping missing values.
+
+**Dynamic y-axis scaling** — bracket and annotation positions are 
+calculated from the actual maximum value in the data rather than 
+hardcoded. This makes the chart layout correct for any metric, 
+regardless of its scale.
 
 ## Future features
 
 - Support for additional citizen science datasets (drop-in CSV)
 - Demographics tab: filter by age group and gender
 - Change score chart: visualize pre→post difference per group
+- Export chart data as CSV
 
+## About
 
-## Inspired by
-
-This project was built as the CS50x final project by Romana Yáñez, 
-who is interested in the intersection of citizen science, 
-data visualization and science communication.
-
+Built by Romana Yáñez as the final project for CS50x — Harvard 
+University's Introduction to Computer Science. Built with Python, 
+Flask, pandas, scipy, and Plotly.js.
